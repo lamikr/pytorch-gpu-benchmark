@@ -1,0 +1,14 @@
+benchmark start : 2022/10/09 10:22:38
+system_configs
+
+uname_result(system='Linux', node='tinka', release='6.0.0-lamikr-amd-rocm+', version='#3 SMP PREEMPT_DYNAMIC Sat Oct 8 18:43:25 PDT 2022', machine='x86_64', processor='x86_64')
+                     scpufreq(current=2502.5781875000002, min=2200.0, max=3400.0)
+                    cpu_count: 16
+                    memory_available: 58048671744
+gpu_configs
+
+Number of GPUs on current device : 1
+CUDA Version : None
+Cudnn Version : 2018000
+Device Name : AMD Radeon RX 6800
+benchmark end : 2022/10/09 11:05:27
