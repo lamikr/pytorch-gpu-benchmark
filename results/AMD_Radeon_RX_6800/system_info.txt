@@ -1,0 +1,14 @@
+benchmark start : 2024/06/07 10:40:31
+system_configs
+
+uname_result(system='Linux', node='tinka', release='6.6.28-desktop-1.mga9', version='#1 SMP PREEMPT_DYNAMIC Wed Apr 17 17:19:36 UTC 2024', machine='x86_64')
+                     scpufreq(current=2757.6150000000002, min=2200.0, max=3400.0)
+                    cpu_count: 16
+                    memory_available: 129370173440
+gpu_configs
+
+Number of GPUs on current device : 1
+CUDA Version : None
+Cudnn Version : 3001000
+Device Name : AMD Radeon RX 6800
+benchmark end : 2024/06/07 11:31:15
