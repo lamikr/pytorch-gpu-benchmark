@@ -1,6 +1,8 @@
 # About
 Comparison of learning and inference speed of different GPU with various CNN models in __pytorch__
 
+* AMD_Radeon_RX_6800
+* AMD_Radeon_RX_7900_XTX
 * 1080TI
 * TITAN XP
 * TITAN V
@@ -42,7 +44,7 @@ ResNet152, DenseNet121, DenseNet169, DenseNet201, DenseNet161 mobilenet mnasnet 
 
 ## Usage
 
-`./test.sh`
+`././run_benchmarks.sh`
 
 ## Results
 
@@ -58,7 +60,7 @@ ResNet152, DenseNet121, DenseNet169, DenseNet201, DenseNet161 mobilenet mnasnet 
 
 ### Environment
 
-* Pytorch version `1.4`
+* Pytorch version `2.3`
 * Number of GPUs on current device `4`
 * CUDA version = `10.0`
 * CUDNN version= `7601`
@@ -67,6 +69,15 @@ ResNet152, DenseNet121, DenseNet169, DenseNet201, DenseNet161 mobilenet mnasnet 
 
 
 ### Change Log
+* 2024/07/22
+  * benchmarks can now be run also on AMD gpus 
+  * ./run_benchmarks.sh script uses now pytorch to query the gpu count
+    and will first run the tests for each device separately and then
+    by using all GPU's simultaneously
+  * new benchmark results are saved to new_results/<gpu_index>/<gpu_name> folder
+  * added new "-i" option which can be used to specify which GPU to use
+  * If gpu index is not specified with -i option but the total gpu count specified
+    by -g option > 1, then the tests will be run in a way that it uses all gpus simultaneously
 * 2021/02/27
   * Addition result in RTX3090
   * Addition result in RTX2060(thanks for gutama)

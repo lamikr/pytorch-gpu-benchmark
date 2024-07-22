@@ -62,7 +62,7 @@ parser.add_argument(
     "--folder",
     "-f",
     type=str,
-    default="result",
+    default="new_results",
     required=False,
     help="folder to save results",
 )
