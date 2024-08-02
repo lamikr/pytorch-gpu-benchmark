@@ -34,6 +34,7 @@ MODEL_LIST_MINIMAL = {
     models.mobilenet: ["mobilenet_v3_small"],
     models.shufflenetv2: ["shufflenet_v2_x0_5"],
 }
+PRECISION_LIST_MINIMAL = ["float"]
 
 # mnasnet0_5,mnasnet0_75,mnasnet1_0,mnasnet1_3
 # resnet18,resnet34,resnet50,resnet101,resnet152,resnext50_32x4d,resnext101_32x8d,resnext101_64x4d,wide_resnet50_2,wide_resnet101_2,
@@ -51,6 +52,7 @@ MODEL_LIST_MEDIUM = {
     models.mobilenet: ["mobilenet_v3_large", "mobilenet_v3_small"],
     models.shufflenetv2: ["shufflenet_v2_x0_5", "shufflenet_v2_x1_5"],
 }
+PRECISION_LIST_MEDIUM = ["float", "half"]
 
 # mnasnet0_5,mnasnet0_75,mnasnet1_0,mnasnet1_3
 # resnet18,resnet34,resnet50,resnet101,resnet152,resnext50_32x4d,resnext101_32x8d,resnext101_64x4d,wide_resnet50_2,wide_resnet101_2,
@@ -68,8 +70,8 @@ MODEL_LIST_FULL = {
     models.mobilenet: models.mobilenet.mv3_all[1:],
     models.shufflenetv2: models.shufflenetv2.__all__[1:],
 }
+PRECISION_LIST_FULL = ["float", "half", "double"]
 
-precisions = ["float", "half", "double"]
 # For post-voltaic architectures, there is a possibility to use tensor-core at half precision.
 # Due to the gradient overflow problem, apex is recommended for practical use.
 # Training settings
@@ -248,19 +250,27 @@ if __name__ == "__main__":
     gpu_mem_used = gpu_mem_total - gpu_mem_free
     # 3 different set of benchmarks depending of the gpu memory available
     # to avoid out of memory errors (failed to allocate memory error in pytorch)
-    gpu_benchmark_set = 0
-    gpu_benchmark_set_desc = "minimal"
+    gpu_benchmark_models_index = 0
+    gpu_benchmark_models_name = "MINIMAL"
     benchmark_model = MODEL_LIST_MINIMAL
-    if (gpu_mem_free >= 6) and (gpu_mem_free <= 10):
-        gpu_benchmark_set = 1
-        gpu_benchmark_set_desc = "medium"
-        benchmark_model = MODEL_LIST_MEDIUM
-    else:
-        if (gpu_mem_free > 10):
-            gpu_benchmark_set = 2
-            gpu_benchmark_set_desc = "full"
-            benchmark_model = MODEL_LIST_FULL
-    print("mem_type: " + gpu_benchmark_set_desc + ", mem free: " + str(gpu_mem_free))
+    # run medium list also with integrated graphic cards
+    precisions = PRECISION_LIST_MEDIUM
+    print("device_name: " + device_name)
+    # if gpu is AMD's integrated graphic card, run only the minime set of benchmarks
+    if device_name != "AMD Radeon Graphics":
+        if (gpu_mem_free >= 6) and (gpu_mem_free <= 10):
+            gpu_benchmark_models_index = 1
+            gpu_benchmark_models_name = "MEDIUM"
+            benchmark_model = MODEL_LIST_MEDIUM
+            precisions = PRECISION_LIST_MEDIUM
+        else:
+            if (gpu_mem_free > 10):
+                gpu_benchmark_models_index = 2
+                gpu_benchmark_models_name = "FULL"
+                benchmark_model = MODEL_LIST_FULL
+                precisions = PRECISION_LIST_FULL
+    print("benchmark_model: " + gpu_benchmark_models_name + ", mem free: " + str(gpu_mem_free))
+    sys.exit("jee")
     device_name = f"{device_name}"
     if (args.GPU_COUNT > 1):
         device_name = device_name + str(gpu_count) + "X"
@@ -278,7 +288,7 @@ if __name__ == "__main__":
                     {psutil.cpu_freq()}\n\
                     cpu_count: {psutil.cpu_count()}\n\
                     memory_available: {psutil.virtual_memory().available}\n\
-                    gpu_benchmark_set: {gpu_benchmark_set_desc}"
+                    gpu_benchmark_models_description: {gpu_benchmark_models_name}"
     gpu_configs = [
         gpu_count,
         torch.__version__,
@@ -288,7 +298,7 @@ if __name__ == "__main__":
         device_name,
         gpu_mem_total,
         gpu_mem_used,
-        gpu_benchmark_set_desc,
+        gpu_benchmark_models_name,
     ]
     gpu_configs = list(map(str, gpu_configs))
     temp = [
