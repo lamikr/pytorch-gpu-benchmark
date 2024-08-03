@@ -2,6 +2,41 @@
 Comparison of learning and inference speed of different GPU with various CNN models in __pytorch__
 List of tested AMD and NVIDIA GPUs:
 
+### Example Results
+
+generated with the command: ./show_benchmarks_resuls.sh 
+
+![Resnet Benchmark for Half-type](fig/comparison/resnet_benchmarks.png  "Pytorch with AMD GPU")
+
+# Benchmark Execution
+
+### Benchmarking All GPUs
+
+This command will use pytorch to search all GPUs and will then
+run the benchmark for each of them separately and then in the end
+the benchmark that uses all of the GPUs
+
+    ./run_benchmarks.sh
+    
+### Benchmarking One GPU
+
+This command shows how to execute the benchmark for single gpu by using the -i parameter.
+
+    python3 benchmark_models.py -i 1 -g 1
+
+First GPU has index 0, second 1, etc...
+
+### Benchmark Results
+
+* New Results are stored under "new_results" folder
+* Existing old results are under results folder
+* After running the benchmarks, you can create a pull request to github
+  to request to get them merged
+* You can view the results of new benchmarks by addings the name of it's result
+  file to plot_benchmarks.py and then running the show_benchmarks.sh script.
+
+## List of Benchmarked GPUs
+
 * AMD_Radeon_RX_6800
 * AMD_Radeon_RX_7900_XTX
 * AMD_Radeon_RX_7700S (Framework 16 laptop discrete GPU)
@@ -15,22 +50,6 @@ List of tested AMD and NVIDIA GPUs:
 * RTX 3090
 * A100-PCIE
 * A100-SXM4
-
-# Results
-
-generated with the command: ./show_benchmarks_resuls.sh 
-
-![Resnet Benchmark for Half-type](fig/comparison/resnet_benchmarks.png  "Pytorch with AMD GPU")
-
-#Benchmark Execution
-
-## For all GPU one by one with command
-
-    ./run_benchmarks.sh
-    
-# For single GPU by specifying it's index with -i parameter
-
-    python3 benchmark_models.py -i 1 -g 1
 
 # Specification
 | Graphics Card Name |   GTX 1080 Ti  |    TITAN XP    |     TITAN V    |    RTX 2060    |   RTX 2080 Ti  |    TITAN RTX   |    A100-PCIE   |    RTX 3090    |
@@ -67,7 +86,7 @@ ResNet152, DenseNet121, DenseNet169, DenseNet201, DenseNet161 mobilenet mnasnet 
 
 ## Results
 
-###  requirement
+###  Requirement
 * python>=3.6(for f-formatting)
 * torchvision
 * torch>=1.0.0
@@ -76,7 +95,6 @@ ResNet152, DenseNet121, DenseNet169, DenseNet201, DenseNet161 mobilenet mnasnet 
 * plotly(for plot)
 * cufflinks(for plot)
 
-
 ### Environment
 
 * Pytorch version `2.3`
@@ -84,8 +102,6 @@ ResNet152, DenseNet121, DenseNet169, DenseNet201, DenseNet161 mobilenet mnasnet 
 * CUDA version = `10.0`
 * CUDNN version= `7601`
 * `nvcr.io/nvidia/pytorch:20.10-py3` (docker container in A100 and 3090)
-
-
 
 ### Change Log
 * 2024/07/22
