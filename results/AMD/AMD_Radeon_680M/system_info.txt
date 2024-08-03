@@ -1,0 +1,20 @@
+benchmark start : 2024/08/03 01:45:17
+system_configs
+
+uname_result(system='Linux', node='halsey', release='6.10.2', version='#4 SMP PREEMPT_DYNAMIC Fri Aug  2 23:03:39 PDT 2024', machine='x86_64')
+                    scpufreq(current=783.399625, min=400.0, max=4935.0)
+                    cpu_count: 16
+                    memory_available: 25917763584
+                    gpu_benchmark_models_description: MINIMAL
+gpu_configs
+
+GPU_Count: 1
+Torch_Version : 2.4.1-rc1
+ROCM_Version: 6.1.40093-e0d934acc
+CUDA_Version: None
+Cudnn_Version: 3001000
+Device_Name: AMD_Radeon_Graphics
+GPU_Mem_Total_GB: 13.497814178466797
+GPU_Mem_Free_GB: -0.045337677001953125
+Benchmark_Model_Size: MINIMAL
+benchmark end : 2024/08/03 02:06:28
