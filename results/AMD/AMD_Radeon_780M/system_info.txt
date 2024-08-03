@@ -1,0 +1,19 @@
+benchmark start : 2024/08/01 21:43:30
+system_configs
+
+uname_result(system='Linux', node='ubuntu2404', release='6.8.0-39-generic', version='#39-Ubuntu SMP PREEMPT_DYNAMIC Fri Jul  5 21:49:14 UTC 2024', machine='x86_64')
+                    scpufreq(current=853.3695625, min=400.0, max=5666.875)
+                    cpu_count: 16
+                    memory_available: 26050535424
+                    gpu_benchmark_models_description: MINIMAL
+gpu_configs
+
+GPU_Count: 1
+Torch_Version : 2.3.1
+ROCM_Version: 6.1.40093-20e892f82
+CUDA_Version: None
+Cudnn_Version: 3001000
+Device_Name: AMD_Radeon_780M
+GPU_Mem_Total_GB: 3.908203125
+GPU_Mem_Free_GB: -0.091796875
+Benchmark_Model_Size: MINIMAL
