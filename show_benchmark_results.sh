@@ -1,1 +1,1 @@
-python3 plot_benchmark_graphs.py
+python3 plot_benchmark_results.py

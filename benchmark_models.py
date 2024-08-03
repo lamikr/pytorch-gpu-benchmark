@@ -12,6 +12,12 @@ import argparse
 from torch.utils.data import Dataset, DataLoader
 import json
 import sys
+from dataclasses import dataclass
+
+@dataclass
+class BenchmarkModelData:
+    model_desc: str
+    model_set: dict
 
 torch.backends.cudnn.benchmark = True
 # https://discuss.pytorch.org/t/what-does-torch-backends-cudnn-benchmark-do/5936
@@ -26,11 +32,11 @@ torch.backends.cudnn.benchmark = True
 # mobilenet_v3_small,
 # shufflenet_v2_x0_5,shufflenet_v2_x1_0, shufflenet_v2_x1_5,shufflenet_v2_x2_0
 MODEL_LIST_MINIMAL = {
-    models.mnasnet: ["mnasnet0_5", "mnasnet0_75"],
-    models.resnet: ["resnet18", "resnet34", "resnet50"],
+    models.mnasnet: ["mnasnet0_5", "mnasnet0_75", "mnasnet1_0"],
+    models.resnet: ["resnet18", "resnet34", "resnet50", "resnet101"],
     models.densenet: ["densenet121"],
     models.squeezenet: ["squeezenet1_0"],
-    models.vgg: ["vgg11", "vgg11_bn"],
+    models.vgg: ["vgg11", "vgg11_bn", "vgg13", "vgg13_bn", "vgg16", "vgg16_bn"],
     models.mobilenet: ["mobilenet_v3_small"],
     models.shufflenetv2: ["shufflenet_v2_x0_5"],
 }
@@ -78,7 +84,7 @@ PRECISION_LIST_FULL = ["float", "half", "double"]
 parser = argparse.ArgumentParser(description="PyTorch Benchmarking")
 parser.add_argument(
     "--WARM_UP", "-w", type=int, default=5, required=False, help="Num of warm up"
-)
+)      
 
 parser.add_argument(
     "--NUM_TEST", "-n", type=int, default=50, required=False, help="Num of Test"
@@ -210,7 +216,11 @@ f"{platform.uname()}\n{psutil.cpu_freq()}\ncpu_count: {psutil.cpu_count()}\nmemo
 if __name__ == "__main__":
     args = parser.parse_args()
     args.BATCH_SIZE *= args.GPU_COUNT
+    gpu_count = args.GPU_COUNT
+    gpu_index = args.GPU_INDEX
 
+    print("gpu_index: " + str(gpu_index))
+    print("gpu_count: " + str(gpu_count))
     print("BATCH_SIZE: " + str(args.BATCH_SIZE))
     rand_loader = DataLoader(
         dataset=RandomDataset(args.BATCH_SIZE * (args.WARM_UP + args.NUM_TEST)),
@@ -218,12 +228,8 @@ if __name__ == "__main__":
         shuffle=False,
         num_workers=8,
     )
-    gpu_count = args.GPU_COUNT
-    gpu_index = args.GPU_INDEX
-    
-    print("gpu_index: " + str(gpu_index))
-    print("gpu_count: " + str(gpu_count))
 
+    # get available memory
     gpu_mem_total = 0
     gpu_mem_used = 0
     if (gpu_index >= 0):
@@ -243,40 +249,56 @@ if __name__ == "__main__":
                 if (mem_tuple[0] < gpu_mem_total):
                     gpu_mem_total = mem_tuple[0]
                     gpu_mem_free = mem_tuple[1]
-
     # convert memory sizes to gigabytes (gb)
     gpu_mem_total = gpu_mem_total / (1048576.0 * 1024)
     gpu_mem_free = gpu_mem_free / (1048576.0 * 1024)
     gpu_mem_used = gpu_mem_total - gpu_mem_free
-    # 3 different set of benchmarks depending of the gpu memory available
-    # to avoid out of memory errors (failed to allocate memory error in pytorch)
-    gpu_benchmark_models_index = 0
+
+    # select which set of benchmarks and precisions to run
+    # depending from the gpu memory available. (to avoid out of memory errors)
     gpu_benchmark_models_name = "MINIMAL"
     benchmark_model = MODEL_LIST_MINIMAL
+    
+    modeldata_float = BenchmarkModelData("MEDIUM", MODEL_LIST_MEDIUM)
+    modeldata_half = BenchmarkModelData("MINIMAL", MODEL_LIST_MINIMAL)
+    modeldata_double = BenchmarkModelData("MINIMAL", MODEL_LIST_MINIMAL)
     # run medium list also with integrated graphic cards
     precisions = PRECISION_LIST_MEDIUM
-    print("device_name: " + device_name)
+    benchmark_model_dict = {}
+    
     # if gpu is AMD's integrated graphic card, run only the minime set of benchmarks
-    if device_name != "AMD Radeon Graphics":
-        if (gpu_mem_free >= 6) and (gpu_mem_free <= 10):
-            gpu_benchmark_models_index = 1
-            gpu_benchmark_models_name = "MEDIUM"
-            benchmark_model = MODEL_LIST_MEDIUM
-            precisions = PRECISION_LIST_MEDIUM
+    if device_name == "AMD Radeon Graphics":
+        precisions = PRECISION_LIST_MEDIUM
+        benchmark_model_dict["float"] = BenchmarkModelData("MINIMAL", MODEL_LIST_MINIMAL)
+        benchmark_model_dict["half"] = BenchmarkModelData("MINIMAL", MODEL_LIST_MINIMAL)
+    else:
+        if (gpu_mem_free <= 6):
+            precisions = PRECISION_LIST_FULL
+            benchmark_model_dict["float"] = BenchmarkModelData("FULL", MODEL_LIST_FULL)
+            benchmark_model_dict["half"] = BenchmarkModelData("MEDIUM", MODEL_LIST_MEDIUM)
+            benchmark_model_dict["double"] = BenchmarkModelData("MINIMAL", MODEL_LIST_MINIMAL)
+        elif (gpu_mem_free > 6) and (gpu_mem_free <= 10):
+            precisions = PRECISION_LIST_FULL
+            benchmark_model_dict["float"] = BenchmarkModelData("FULL", MODEL_LIST_FULL)
+            benchmark_model_dict["half"] = BenchmarkModelData("FULL", MODEL_LIST_FULL)
+            benchmark_model_dict["double"] = BenchmarkModelData("MEDIUM", MODEL_LIST_MEDIUM)
+            gpu_benchmark_models_name = "FULL"
+            benchmark_model = MODEL_LIST_FULL
         else:
-            if (gpu_mem_free > 10):
-                gpu_benchmark_models_index = 2
-                gpu_benchmark_models_name = "FULL"
-                benchmark_model = MODEL_LIST_FULL
-                precisions = PRECISION_LIST_FULL
-    print("benchmark_model: " + gpu_benchmark_models_name + ", mem free: " + str(gpu_mem_free))
-    sys.exit("jee")
+            precisions = PRECISION_LIST_FULL
+            benchmark_model_dict["float"] = BenchmarkModelData("FULL", MODEL_LIST_FULL)
+            benchmark_model_dict["half"] = BenchmarkModelData("FULL", MODEL_LIST_FULL)
+            benchmark_model_dict["double"] = BenchmarkModelData("FULL", MODEL_LIST_FULL)
+            gpu_benchmark_models_name = "FULL"
+            benchmark_model = MODEL_LIST_FULL
+
     device_name = f"{device_name}"
     if (args.GPU_COUNT > 1):
         device_name = device_name + str(gpu_count) + "X"
     device_name = device_name.replace(" ", "_")
     device_file_name = device_name + "_"
     print("device_name: " + device_name)
+    print("mem free: " + str(gpu_mem_free))
 
     if (gpu_index >= 0):
         folder_name = args.folder + "/" + str(gpu_index) + "/" + device_name
@@ -335,18 +357,21 @@ if __name__ == "__main__":
         f.writelines(s + "\n" for s in gpu_configs)
 
     for precision in precisions:
-        train_result = train(precision, gpu_index, benchmark_model)
+        benchmark_model_data = benchmark_model_dict[precision]
+        print("precision: " + precision + ", set: " + benchmark_model_data.model_desc)
+
+        train_result = train(precision, gpu_index, benchmark_model_data.model_set)
         train_result_df = pd.DataFrame(train_result)
         path = f"{folder_name}/{device_file_name}_{precision}_model_train_benchmark.csv"
         train_result_df.to_csv(path, index=False)
 
-        inference_result = inference(precision, gpu_index, benchmark_model)
+        inference_result = inference(precision, gpu_index, benchmark_model_data.model_set)
         inference_result_df = pd.DataFrame(inference_result)
         path = f"{folder_name}/{device_file_name}_{precision}_model_inference_benchmark.csv"
         inference_result_df.to_csv(path, index=False)
 
+    # finish the benchmarks
     now = datetime.datetime.now()
-
     end_time = now.strftime("%Y/%m/%d %H:%M:%S")
     print(f"benchmark end : {end_time}")
     with open(os.path.join(folder_name, "system_info.txt"), "a") as f:

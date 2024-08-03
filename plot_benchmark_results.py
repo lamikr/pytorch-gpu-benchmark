@@ -8,11 +8,17 @@ def substring_before(s, delim):
 def substring_after(s, delim):
     return s.partition(delim)[2]
 
+#"results/AMD/AMD_Radeon_780M/AMD_Radeon_780M__half_model_train_benchmark.csv",
+#"results/Nvidia/TITAN_RTX/TITAN_RTX__half_model_train_benchmark.csv",
+#"results/Nvidia/GeForce_GTX_1080_TI/GeForce_GTX_1080_TI__half_model_training_benchmark.csv",
+#"results/Nvidia/GeForce_RTX_2080_TI/GeForce_RTX_2080_TI__half_model_training_benchmark.csv",
+#"results/AMD/AMD_Radeon_780M/AMD_Radeon_780M__half_model_train_benchmark.csv",
+
 _result_filename_arr = [
-                "results/Nvidia/GeForce_RTX_2060_MaxQ/GeForce_RTX_2060_MaxQ__half_model_train_benchmark.csv",
                 "results/Nvidia/GeForce_GTX_1080_TI/GeForce_GTX_1080_TI__half_model_training_benchmark.csv",
+                "results/Nvidia/GeForce_RTX_2060_MaxQ/GeForce_RTX_2060_MaxQ__half_model_train_benchmark.csv",
+                "results/AMD/AMD_Radeon_RX_7700S/AMD_Radeon_RX_7700S__half_model_train_benchmark.csv",
                 "results/AMD/AMD_Radeon_RX_6800/AMD_Radeon_RX_6800__half_model_train_benchmark.csv",
-                "results/Nvidia/TITAN_RTX/TITAN_RTX__half_model_train_benchmark.csv",
                 "results/Nvidia/GeForce_RTX_3090/GeForce_RTX_3090__half_model_train_benchmark.csv",
                 "results/Nvidia/A100_SXM4_40GB/A100_SXM4_40GB__half_model_train_benchmark.csv",
                 "results/AMD/AMD_Radeon_RX_7900_XTX/AMD_Radeon_RX_7900_XTX__half_model_train_benchmark.csv",
@@ -58,6 +64,6 @@ for benchmark_name in _benchmark_name_arr:
     df_mean = pd.concat(_df_means_appended, axis=1)
     df_mean.columns = basename_arr
     df_mean.plot(xlabel='benchmark model', ylabel='execution time (msec), smaller value is better', title=tittle_str)
-    #plt.plot(df_mean)
+    # plt.plot(df_mean)
     ### Generate the plot
     plt.show()
