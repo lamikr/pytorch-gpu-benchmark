@@ -1,8 +1,11 @@
 # About
 Comparison of learning and inference speed of different GPU with various CNN models in __pytorch__
+List of tested AMD and NVIDIA GPUs:
 
 * AMD_Radeon_RX_6800
 * AMD_Radeon_RX_7900_XTX
+* AMD_Radeon_RX_7700S (Framework 16 laptop discrete GPU)
+* AMD_Radeon_780M     (Framework 16 laptop iGPU)
 * 1080TI
 * TITAN XP
 * TITAN V
@@ -12,6 +15,22 @@ Comparison of learning and inference speed of different GPU with various CNN mod
 * RTX 3090
 * A100-PCIE
 * A100-SXM4
+
+# Results
+
+generated with the command: ./show_benchmarks_resuls.sh 
+
+![Resnet Benchmark for Half-type](fig/comparison/resnet_benchmarks.png  "Pytorch with AMD GPU")
+
+#Benchmark Execution
+
+## For all GPU one by one with command
+
+    ./run_benchmarks.sh
+    
+# For single GPU by specifying it's index with -i parameter
+
+    python3 benchmark_models.py -i 1 -g 1
 
 # Specification
 | Graphics Card Name |   GTX 1080 Ti  |    TITAN XP    |     TITAN V    |    RTX 2060    |   RTX 2080 Ti  |    TITAN RTX   |    A100-PCIE   |    RTX 3090    |
