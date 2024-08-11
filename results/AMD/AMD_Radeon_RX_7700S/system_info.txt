@@ -1,20 +1,20 @@
-benchmark start : 2024/08/01 23:08:48
+benchmark start : 2024/08/10 21:00:10
 system_configs
 
-uname_result(system='Linux', node='ubuntu2404', release='6.8.0-39-generic', version='#39-Ubuntu SMP PREEMPT_DYNAMIC Fri Jul  5 21:49:14 UTC 2024', machine='x86_64')
-                    scpufreq(current=1067.08075, min=400.0, max=5666.875)
+uname_result(system='Linux', node='fedora', release='6.11.0-rc2+', version='#3 SMP PREEMPT_DYNAMIC Sat Aug 10 13:57:03 PDT 2024', machine='x86_64')
+                    scpufreq(current=510.7525, min=400.0, max=5137.0)
                     cpu_count: 16
-                    memory_available: 26370625536
+                    memory_available: 25509818368
                     gpu_benchmark_models_description: FULL
 gpu_configs
 
 GPU_Count: 1
-Torch_Version : 2.3.1
-ROCM_Version: 6.1.40093-20e892f82
+Torch_Version : 2.4.1-rc1
+ROCM_Version: 6.1.40093-25aee5846
 CUDA_Version: None
 Cudnn_Version: 3001000
 Device_Name: AMD_Radeon_RX_7700S
 GPU_Mem_Total_GB: 7.951171875
 GPU_Mem_Free_GB: -0.033203125
 Benchmark_Model_Size: FULL
-benchmark end : 2024/08/01 23:28:13
+benchmark end : 2024/08/10 21:57:59
