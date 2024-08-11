@@ -4,7 +4,10 @@ List of tested AMD and NVIDIA GPUs:
 
 ### Example Results
 
-generated with the command: ./show_benchmarks_resuls.sh 
+Following benchmark results has been generated with the command: ./show_benchmarks_resuls.sh
+Graph shows the 7700S results both with the pytorch 2.3.1 and with pytorch 2.4.0.
+ROCM SDK builders pytorch 2.4.0 contains the optimized flashattention support for
+AMD RX 7700S. (and other gfx1100/gfx1101/gfx1102 and gfx1103 cards)
 
 ![Resnet Benchmark for Half-type](fig/comparison/resnet_benchmarks.png  "Pytorch with AMD GPU")
 
