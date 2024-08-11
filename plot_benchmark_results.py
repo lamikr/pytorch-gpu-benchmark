@@ -17,8 +17,9 @@ def num_sort(test_string):
 #"results/Nvidia/GeForce_GTX_1080_TI/GeForce_GTX_1080_TI__half_model_training_benchmark.csv",
 #"results/Nvidia/GeForce_RTX_2080_TI/GeForce_RTX_2080_TI__half_model_training_benchmark.csv",
 #"results/AMD/AMD_Radeon_780M/AMD_Radeon_780M__half_model_train_benchmark.csv",
+#"results/Nvidia/GeForce_RTX_2080_TI/GeForce_RTX_2080_TI__half_model_training_benchmark.csv",
+#"results/Nvidia/GeForce_RTX_2060_MaxQ/GeForce_RTX_2060_MaxQ__half_model_train_benchmark.csv",
 
-#                 "results/Nvidia/GeForce_RTX_2060_MaxQ/GeForce_RTX_2060_MaxQ__half_model_train_benchmark.csv",
 _result_filename_arr = [
                 "results/Nvidia/GeForce_GTX_1080_TI/GeForce_GTX_1080_TI__half_model_training_benchmark.csv",
                 "results/AMD/AMD_Radeon_RX_7700S_NO_OPT/AMD_Radeon_RX_7700S_NO_OPT__half_model_train_benchmark.csv",
