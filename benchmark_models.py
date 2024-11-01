@@ -32,13 +32,12 @@ torch.backends.cudnn.benchmark = True
 # mobilenet_v3_small,
 # shufflenet_v2_x0_5,shufflenet_v2_x1_0, shufflenet_v2_x1_5,shufflenet_v2_x2_0
 MODEL_LIST_MINIMAL = {
-    models.mnasnet: ["mnasnet0_5", "mnasnet0_75", "mnasnet1_0"],
-    models.resnet: ["resnet18", "resnet34", "resnet50", "resnet101"],
+    models.mnasnet: ["mnasnet0_5", "mnasnet0_75"],
+    models.resnet: ["resnet18"],
     models.densenet: ["densenet121"],
     models.squeezenet: ["squeezenet1_0"],
-    models.vgg: ["vgg11", "vgg11_bn", "vgg13", "vgg13_bn", "vgg16", "vgg16_bn"],
+    models.vgg: ["vgg11"],
     models.mobilenet: ["mobilenet_v3_small"],
-    models.shufflenetv2: ["shufflenet_v2_x0_5"],
 }
 PRECISION_LIST_MINIMAL = ["float"]
 
@@ -52,7 +51,7 @@ PRECISION_LIST_MINIMAL = ["float"]
 MODEL_LIST_MEDIUM = {
     models.mnasnet: ["mnasnet0_5", "mnasnet0_75", "mnasnet1_0"],
     models.resnet: ["resnet18", "resnet34", "resnet50", "resnet101", "resnet152"],
-    models.densenet: ["densenet121", "densenet161"],
+    models.densenet: ["densenet121"],
     models.squeezenet: ["squeezenet1_0", "squeezenet1_1"],
     models.vgg: ["vgg11", "vgg11_bn", "vgg13", "vgg13_bn", "vgg16", "vgg16_bn"],
     models.mobilenet: ["mobilenet_v3_large", "mobilenet_v3_small"],
@@ -134,6 +133,10 @@ def train(precision="single", gpu_index=-1, benchmark_model=MODEL_LIST_MINIMAL):
         target = torch.LongTensor(args.BATCH_SIZE).random_(args.NUM_CLASSES).cuda()
     criterion = nn.CrossEntropyLoss()
     benchmark = {}
+    for model_type in benchmark_model.keys():
+        #print("train model_type: " + model_type)
+        for model_name in benchmark_model[model_type]:
+            print("model_name: " + model_name)
     for model_type in benchmark_model.keys():
         for model_name in benchmark_model[model_type]:
             if model_name[-8:] == '_Weights': continue
@@ -257,7 +260,6 @@ if __name__ == "__main__":
     # select which set of benchmarks and precisions to run
     # depending from the gpu memory available. (to avoid out of memory errors)
     gpu_benchmark_models_name = "MINIMAL"
-    benchmark_model = MODEL_LIST_MINIMAL
     
     modeldata_float = BenchmarkModelData("MEDIUM", MODEL_LIST_MEDIUM)
     modeldata_half = BenchmarkModelData("MINIMAL", MODEL_LIST_MINIMAL)
@@ -268,29 +270,29 @@ if __name__ == "__main__":
     
     # if gpu is AMD's integrated graphic card, run only the minime set of benchmarks
     if device_name == "AMD Radeon Graphics":
-        precisions = PRECISION_LIST_MEDIUM
+        precisions = PRECISION_LIST_MINIMAL
         benchmark_model_dict["float"] = BenchmarkModelData("MINIMAL", MODEL_LIST_MINIMAL)
-        benchmark_model_dict["half"] = BenchmarkModelData("MINIMAL", MODEL_LIST_MINIMAL)
+        #benchmark_model_dict["half"] = BenchmarkModelData("MINIMAL", MODEL_LIST_MINIMAL)
+        gpu_benchmark_models_name = "MINIMAL"
     else:
-        if (gpu_mem_free <= 6):
+        if (gpu_mem_free <= 8):
+            precisions = PRECISION_LIST_MEDIUM
+            benchmark_model_dict["float"] = BenchmarkModelData("MINIMAL", MODEL_LIST_MINIMAL)
+            benchmark_model_dict["half"] = BenchmarkModelData("MINIMAL", MODEL_LIST_MINIMAL)
+            #benchmark_model_dict["double"] = BenchmarkModelData("MINIMAL", MODEL_LIST_MINIMAL)
+            gpu_benchmark_models_name = "MINIMAL"
+        elif (gpu_mem_free > 8) and (gpu_mem_free <= 10):
             precisions = PRECISION_LIST_FULL
-            benchmark_model_dict["float"] = BenchmarkModelData("FULL", MODEL_LIST_FULL)
+            benchmark_model_dict["float"] = BenchmarkModelData("MEDIUM", MODEL_LIST_MEDIUM)
             benchmark_model_dict["half"] = BenchmarkModelData("MEDIUM", MODEL_LIST_MEDIUM)
-            benchmark_model_dict["double"] = BenchmarkModelData("MINIMAL", MODEL_LIST_MINIMAL)
-        elif (gpu_mem_free > 6) and (gpu_mem_free <= 10):
-            precisions = PRECISION_LIST_FULL
-            benchmark_model_dict["float"] = BenchmarkModelData("FULL", MODEL_LIST_FULL)
-            benchmark_model_dict["half"] = BenchmarkModelData("FULL", MODEL_LIST_FULL)
             benchmark_model_dict["double"] = BenchmarkModelData("MEDIUM", MODEL_LIST_MEDIUM)
-            gpu_benchmark_models_name = "FULL"
-            benchmark_model = MODEL_LIST_FULL
+            gpu_benchmark_models_name = "MEDIUM"
         else:
             precisions = PRECISION_LIST_FULL
             benchmark_model_dict["float"] = BenchmarkModelData("FULL", MODEL_LIST_FULL)
             benchmark_model_dict["half"] = BenchmarkModelData("FULL", MODEL_LIST_FULL)
             benchmark_model_dict["double"] = BenchmarkModelData("FULL", MODEL_LIST_FULL)
             gpu_benchmark_models_name = "FULL"
-            benchmark_model = MODEL_LIST_FULL
 
     device_name = f"{device_name}"
     if (args.GPU_COUNT > 1):
