@@ -1,0 +1,25 @@
+1) Benchmark Start Time:
+2024/11/28 18:25:53
+1) System Config
+
+uname_result(system='Linux', node='localhost', release='6.12.0+', version='#10 SMP PREEMPT_DYNAMIC Mon Nov 18 00:39:11 PST 2024', machine='x86_64')
+                    scpufreq(current=2306.1087500000003, min=1600.0, max=3600.0)
+                    CPU Count: 8
+                    System Memory: 31574982656
+                    Benchmark Precision List Name: MEDIUM
+                    Benchmark Model List Name: MEDIUM
+                    Benchmark Precision List: ['float', 'half', 'double']
+                    Benchmark Model List: {<module 'torchvision.models.mnasnet' from '/home/lamikr/rocm/rocm_sdk_gfx1010/lib/python3.11/site-packages/torchvision/models/mnasnet.py'>: ['mnasnet0_5', 'mnasnet0_75', 'mnasnet1_0'], <module 'torchvision.models.resnet' from '/home/lamikr/rocm/rocm_sdk_gfx1010/lib/python3.11/site-packages/torchvision/models/resnet.py'>: ['resnet18', 'resnet34', 'resnet50', 'resnet101', 'resnet152'], <module 'torchvision.models.densenet' from '/home/lamikr/rocm/rocm_sdk_gfx1010/lib/python3.11/site-packages/torchvision/models/densenet.py'>: ['densenet121', 'densenet161'], <module 'torchvision.models.squeezenet' from '/home/lamikr/rocm/rocm_sdk_gfx1010/lib/python3.11/site-packages/torchvision/models/squeezenet.py'>: ['squeezenet1_0', 'squeezenet1_1'], <module 'torchvision.models.vgg' from '/home/lamikr/rocm/rocm_sdk_gfx1010/lib/python3.11/site-packages/torchvision/models/vgg.py'>: ['vgg11', 'vgg11_bn', 'vgg13', 'vgg13_bn', 'vgg16', 'vgg16_bn'], <module 'torchvision.models.mobilenet' from '/home/lamikr/rocm/rocm_sdk_gfx1010/lib/python3.11/site-packages/torchvision/models/mobilenet.py'>: ['mobilenet_v3_large', 'mobilenet_v3_small'], <module 'torchvision.models.shufflenetv2' from '/home/lamikr/rocm/rocm_sdk_gfx1010/lib/python3.11/site-packages/torchvision/models/shufflenetv2.py'>: ['shufflenet_v2_x0_5', 'shufflenet_v2_x1_5']}
+2) GPU Config
+
+GPU_Count: 1
+Torch_Version : 2.4.1
+ROCM_Version: 6.1.40093-7a39d5d83
+CUDA_Version: None
+Cudnn_Version: 3001000
+Device_Name: AMD_Radeon_RX_5700
+GPU Mem Total (GB): 7.984375
+GPU Mem Used (GB): 0.01953125
+GPU Mem Free (GB): 7.96484375
+Benchmark Model Size: MEDIUM
+benchmark end : 2024/11/28 19:11:10
