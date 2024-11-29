@@ -269,7 +269,7 @@ if __name__ == "__main__":
         model_list_arr = MODEL_LIST_MINIMAL
         #benchmark_model_dict["half"] = BenchmarkModelData("MINIMAL", MODEL_LIST_MINIMAL)
     else:
-        if (gpu_mem_free <= 8):
+        if (gpu_mem_free <= 6):
             model_list_name = "MEDIUM"
             precision_list_name = "MEDIUM"
             precision_list_arr = PRECISION_LIST_MEDIUM
@@ -277,7 +277,7 @@ if __name__ == "__main__":
             #benchmark_model_dict["float"] = BenchmarkModelData("MINIMAL", MODEL_LIST_MINIMAL)
             #benchmark_model_dict["half"] = BenchmarkModelData("MINIMAL", MODEL_LIST_MINIMAL)
             #benchmark_model_dict["double"] = BenchmarkModelData("MINIMAL", MODEL_LIST_MINIMAL)
-        elif (gpu_mem_free > 8) and (gpu_mem_free <= 10):
+        elif (gpu_mem_free > 6) and (gpu_mem_free <= 10):
             model_list_name = "MEDIUM"
             precision_list_name = "MEDIUM"
             precision_list_arr = PRECISION_LIST_FULL
