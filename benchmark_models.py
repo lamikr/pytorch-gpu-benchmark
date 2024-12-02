@@ -263,36 +263,31 @@ if __name__ == "__main__":
     benchmark_model_dict = {}
     # if gpu is AMD's integrated graphic card, run only the minime set of benchmarks
     if device_name == "AMD Radeon Graphics":
-        model_list_name = "MINIMAL"
-        precision_list_name = "MINIMAL"
         precision_list_arr = PRECISION_LIST_MINIMAL
         model_list_arr = MODEL_LIST_MINIMAL
-        #benchmark_model_dict["half"] = BenchmarkModelData("MINIMAL", MODEL_LIST_MINIMAL)
     else:
         if (gpu_mem_free <= 6):
-            model_list_name = "MEDIUM"
-            precision_list_name = "MEDIUM"
             precision_list_arr = PRECISION_LIST_MEDIUM
             model_list_arr = MODEL_LIST_MEDIUM
-            #benchmark_model_dict["float"] = BenchmarkModelData("MINIMAL", MODEL_LIST_MINIMAL)
-            #benchmark_model_dict["half"] = BenchmarkModelData("MINIMAL", MODEL_LIST_MINIMAL)
-            #benchmark_model_dict["double"] = BenchmarkModelData("MINIMAL", MODEL_LIST_MINIMAL)
         elif (gpu_mem_free > 6) and (gpu_mem_free <= 10):
-            model_list_name = "MEDIUM"
-            precision_list_name = "MEDIUM"
             precision_list_arr = PRECISION_LIST_FULL
             model_list_arr = MODEL_LIST_MEDIUM
-            #benchmark_model_dict["float"] = BenchmarkModelData("MEDIUM", MODEL_LIST_MEDIUM)
-            #benchmark_model_dict["half"] = BenchmarkModelData("MEDIUM", MODEL_LIST_MEDIUM)
-            #benchmark_model_dict["double"] = BenchmarkModelData("MEDIUM", MODEL_LIST_MEDIUM)
         else:
-            model_list_name = "FULL"
-            precision_list_name = "FULL"
             precision_list_arr = PRECISION_LIST_FULL
             model_list_arr = MODEL_LIST_FULL
-            #benchmark_model_dict["float"] = BenchmarkModelData("FULL", MODEL_LIST_FULL)
-            #benchmark_model_dict["half"] = BenchmarkModelData("FULL", MODEL_LIST_FULL)
-            #benchmark_model_dict["double"] = BenchmarkModelData("FULL", MODEL_LIST_FULL)
+    if (precision_list_arr == PRECISION_LIST_MINIMAL):
+        precision_list_name = "MINIMAL"
+    elif (precision_list_arr == PRECISION_LIST_MEDIUM):
+        precision_list_name = "MEDIUM"
+    else:
+        precision_list_name = "FULL"
+    if (model_list_arr == MODEL_LIST_MINIMAL):
+        model_list_name = "MINIMAL"
+    elif (model_list_arr == MODEL_LIST_MEDIUM):
+        model_list_name = "MEDIUM"
+    else:
+        model_list_name = "FULL"
+
     for ii, cur_prec in enumerate(precision_list_arr):
         benchmark_model_dict[cur_prec] = BenchmarkModelData(model_list_name, model_list_arr)
 
