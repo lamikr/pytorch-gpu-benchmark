@@ -24,9 +24,9 @@ torch.backends.cudnn.benchmark = True
 # This flag allows you to enable the inbuilt cudnn auto-tuner to find the best algorithm to use for your hardware.
 # If you check it using the profile tool, the cnn method such as winograd, fft, etc. is used for the first iteration and the best operation is selected for the device.
 
-PRECISION_LIST_MINIMAL = ["float"]
-PRECISION_LIST_MEDIUM = ["float", "half"]
-PRECISION_LIST_FULL = ["float", "half", "double"]
+PRECISION_LIST_SMALL = ["float"]
+PRECISION_LIST_MEDIUM = ["float", "double"]
+PRECISION_LIST_LARGE = ["float", "double", "half"]
 
 # mnasnet0_5,mnasnet0_75
 # resnet18,resnet34,resnet50
@@ -35,13 +35,13 @@ PRECISION_LIST_FULL = ["float", "half", "double"]
 # vgg11,vgg11_bn,
 # mobilenet_v3_small,
 # shufflenet_v2_x0_5,shufflenet_v2_x1_0, shufflenet_v2_x1_5,shufflenet_v2_x2_0
-MODEL_LIST_MINIMAL = {
+MODEL_LIST_SMALL = {
     models.mnasnet: ["mnasnet0_5", "mnasnet0_75"],
-    models.resnet: ["resnet18", "resnet34"],
-    models.densenet: ["densenet121"],
-    models.squeezenet: ["squeezenet1_0"],
-    models.vgg: ["vgg11"],
-    models.mobilenet: ["mobilenet_v3_small"],
+    models.resnet: ["resnet18", "resnet34", "resnet50", "resnet101"],
+    models.densenet: ["densenet121", "densenet161"],
+    models.squeezenet: ["squeezenet1_0", "squeezenet1_1"],
+    models.vgg: ["vgg11", "vgg11_bn"],
+    models.mobilenet: ["mobilenet_v3_large", "mobilenet_v3_small"],
 }
 
 # mnasnet0_5,mnasnet0_75,mnasnet1_0,mnasnet1_3
@@ -57,7 +57,7 @@ MODEL_LIST_MEDIUM = {
     models.densenet: ["densenet121", "densenet161"],
     models.squeezenet: ["squeezenet1_0", "squeezenet1_1"],
     models.vgg: ["vgg11", "vgg11_bn", "vgg13", "vgg13_bn", "vgg16", "vgg16_bn"],
-    models.mobilenet: ["mobilenet_v3_large", "mobilenet_v3_small"],
+    models.mobilenet: ["mobilenet_v3_large", "/mobilenet_v3_small"],
     models.shufflenetv2: ["shufflenet_v2_x0_5", "shufflenet_v2_x1_5"],
 }
 
@@ -68,7 +68,7 @@ MODEL_LIST_MEDIUM = {
 # vgg11,vgg11_bn,vgg13,vgg13_bn,vgg16,vgg16_bn,vgg19,vgg19_bn,
 # mobilenet_v3_large,mobilenet_v3_small,
 # shufflenet_v2_x0_5,shufflenet_v2_x1_0, shufflenet_v2_x1_5,shufflenet_v2_x2_0
-MODEL_LIST_FULL = {
+MODEL_LIST_LARGE = {
     models.mnasnet: models.mnasnet.__all__[1:],
     models.resnet: models.resnet.__all__[1:],
     models.densenet: models.densenet.__all__[1:],
@@ -91,11 +91,11 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--BATCH_SIZE", "-b", type=int, default=12, required=False, help="Num of batch size"
+    "--BATCH_SIZE", "-b", type=int, default=4, required=False, help="Num of batch size"
 )
 
 parser.add_argument(
-    "--NUM_CLASSES", "-c", type=int, default=1000, required=False, help="Num of class"
+    "--NUM_CLASSES", "-c", type=int, default=200, required=False, help="Num of class"
 )
 
 parser.add_argument(
@@ -126,7 +126,7 @@ class RandomDataset(Dataset):
     def __len__(self):
         return self.len
 
-def train(cur_precision="single", gpu_index=-1, benchmark_model=MODEL_LIST_MINIMAL):
+def train(cur_precision="single", gpu_index=-1, benchmark_model=MODEL_LIST_SMALL):
     """use fake image for training speed test"""
     if gpu_index >= 0:
         target = torch.LongTensor(args.BATCH_SIZE).random_(args.NUM_CLASSES).cuda(gpu_index)
@@ -175,7 +175,7 @@ def train(cur_precision="single", gpu_index=-1, benchmark_model=MODEL_LIST_MINIM
             #print(torch.cuda.memory_summary())
     return benchmark
 
-def inference(cur_precision="float", gpu_index=-1, benchmark_model=MODEL_LIST_MINIMAL):
+def inference(cur_precision="float", gpu_index=-1, benchmark_model=MODEL_LIST_SMALL):
     benchmark = {}
     with torch.no_grad():
         for model_type in benchmark_model.keys():
@@ -263,30 +263,30 @@ if __name__ == "__main__":
     benchmark_model_dict = {}
     # if gpu is AMD's integrated graphic card, run only the minime set of benchmarks
     if device_name == "AMD Radeon Graphics":
-        precision_list_arr = PRECISION_LIST_MINIMAL
-        model_list_arr = MODEL_LIST_MINIMAL
+        precision_list_arr = PRECISION_LIST_MEDIUM
+        model_list_arr = MODEL_LIST_SMALL
     else:
         if (gpu_mem_free <= 6):
             precision_list_arr = PRECISION_LIST_MEDIUM
             model_list_arr = MODEL_LIST_MEDIUM
         elif (gpu_mem_free > 6) and (gpu_mem_free <= 10):
-            precision_list_arr = PRECISION_LIST_FULL
+            precision_list_arr = PRECISION_LIST_LARGE
             model_list_arr = MODEL_LIST_MEDIUM
         else:
-            precision_list_arr = PRECISION_LIST_FULL
-            model_list_arr = MODEL_LIST_FULL
-    if (precision_list_arr == PRECISION_LIST_MINIMAL):
-        precision_list_name = "MINIMAL"
+            precision_list_arr = PRECISION_LIST_LARGE
+            model_list_arr = MODEL_LIST_LARGE
+    if (precision_list_arr == PRECISION_LIST_SMALL):
+        precision_list_name = "SMALL"
     elif (precision_list_arr == PRECISION_LIST_MEDIUM):
         precision_list_name = "MEDIUM"
     else:
-        precision_list_name = "FULL"
-    if (model_list_arr == MODEL_LIST_MINIMAL):
-        model_list_name = "MINIMAL"
+        precision_list_name = "LARGE"
+    if (model_list_arr == MODEL_LIST_SMALL):
+        model_list_name = "SMALL"
     elif (model_list_arr == MODEL_LIST_MEDIUM):
         model_list_name = "MEDIUM"
     else:
-        model_list_name = "FULL"
+        model_list_name = "LARGE"
 
     for ii, cur_prec in enumerate(precision_list_arr):
         benchmark_model_dict[cur_prec] = BenchmarkModelData(model_list_name, model_list_arr)
