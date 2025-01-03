@@ -26,7 +26,7 @@ torch.backends.cudnn.benchmark = True
 
 PRECISION_LIST_SMALL = ["float"]
 PRECISION_LIST_MEDIUM = ["float", "double"]
-PRECISION_LIST_LARGE = ["float", "double", "half"]
+PRECISION_LIST_LARGE = ["half", "float", "double"]
 
 # mnasnet0_5,mnasnet0_75
 # resnet18,resnet34,resnet50
@@ -57,7 +57,7 @@ MODEL_LIST_MEDIUM = {
     models.densenet: ["densenet121", "densenet161"],
     models.squeezenet: ["squeezenet1_0", "squeezenet1_1"],
     models.vgg: ["vgg11", "vgg11_bn", "vgg13", "vgg13_bn", "vgg16", "vgg16_bn"],
-    models.mobilenet: ["mobilenet_v3_large", "/mobilenet_v3_small"],
+    models.mobilenet: ["mobilenet_v3_large", "mobilenet_v3_small"],
     models.shufflenetv2: ["shufflenet_v2_x0_5", "shufflenet_v2_x1_5"],
 }
 
@@ -135,17 +135,13 @@ def train(cur_precision="single", gpu_index=-1, benchmark_model=MODEL_LIST_SMALL
     criterion = nn.CrossEntropyLoss()
     benchmark = {}
     for model_type in benchmark_model.keys():
-        #print("train model_type: " + model_type)
-        for model_name in benchmark_model[model_type]:
-            print("model_name: " + model_name)
-    for model_type in benchmark_model.keys():
         for model_name in benchmark_model[model_type]:
             if model_name[-8:] == '_Weights': continue
             torch_device_name = "cuda"
             if (gpu_index >= 0):
                 torch_device_name = "cuda:" + str(gpu_index)
                 torch.cuda.set_device(gpu_index)
-            print("torch_device_name: " + torch_device_name)
+            #print("torch_device_name: " + torch_device_name)
             model = getattr(model_type, model_name)()
             if args.GPU_COUNT > 1:
                 model = nn.DataParallel(model, device_ids=range(args.GPU_COUNT))
@@ -153,7 +149,7 @@ def train(cur_precision="single", gpu_index=-1, benchmark_model=MODEL_LIST_SMALL
             torch_device = torch.device(torch_device_name)
             model = model.to(torch_device)
             durations = []
-            print(f"Benchmarking Training {cur_precision} precision type {model_name} ")
+            print(f"Benchmarking training, precision: {cur_precision}, model: {model_name}")
             for step, img in enumerate(rand_loader):
                 img = getattr(img, cur_precision)()
                 torch.cuda.synchronize()
@@ -166,9 +162,7 @@ def train(cur_precision="single", gpu_index=-1, benchmark_model=MODEL_LIST_SMALL
                 end = time.time()
                 if step >= args.WARM_UP:
                     durations.append((end - start) * 1000)
-            print(
-                f"{model_name} model average train time : {sum(durations)/len(durations)}ms"
-            )
+            print(f"Average training time: {sum(durations)/len(durations)} ms, model: {model_name}")
             del model
             torch.cuda.empty_cache()
             benchmark[model_name] = durations
@@ -185,7 +179,7 @@ def inference(cur_precision="float", gpu_index=-1, benchmark_model=MODEL_LIST_SM
                 if (gpu_index >= 0):
                     torch_device_name = "cuda:" + str(gpu_index)
                     torch.cuda.set_device(gpu_index)
-                print("torch_device_name: " + torch_device_name)
+                #print("torch_device_name: " + torch_device_name)
                 torch_device = torch.device(torch_device_name)
                 model = getattr(model_type, model_name)()
                 if args.GPU_COUNT > 1:
@@ -194,9 +188,7 @@ def inference(cur_precision="float", gpu_index=-1, benchmark_model=MODEL_LIST_SM
                 model = model.to(torch_device)
                 model.eval()
                 durations = []
-                print(
-                    f"Benchmarking Inference {cur_precision} precision type {model_name} "
-                )
+                print(f"Benchmarking inference, precision: {cur_precision}, model: {model_name}")
                 for step, img in enumerate(rand_loader):
                     img = getattr(img, cur_precision)()
                     torch.cuda.synchronize()
@@ -206,16 +198,12 @@ def inference(cur_precision="float", gpu_index=-1, benchmark_model=MODEL_LIST_SM
                     end = time.time()
                     if step >= args.WARM_UP:
                         durations.append((end - start) * 1000)
-                print(
-                    f"{model_name} model average inference time : {sum(durations)/len(durations)}ms"
-                )
+                print(f"Average inference time: {sum(durations)/len(durations)} ms, model: {model_name}")
                 del model
                 torch.cuda.empty_cache()
                 benchmark[model_name] = durations
                 #print(torch.cuda.memory_summary())
     return benchmark
-
-f"{platform.uname()}\n{psutil.cpu_freq()}\ncpu_count: {psutil.cpu_count()}\nmemory_available: {psutil.virtual_memory().available}"
 
 if __name__ == "__main__":
     args = parser.parse_args()
@@ -223,9 +211,7 @@ if __name__ == "__main__":
     gpu_count = args.GPU_COUNT
     gpu_index = args.GPU_INDEX
 
-    print("gpu_index: " + str(gpu_index))
-    print("gpu_count: " + str(gpu_count))
-    print("BATCH_SIZE: " + str(args.BATCH_SIZE))
+    print("GPU_ID: " + str(gpu_index) + "/" + str(gpu_count))
     rand_loader = DataLoader(
         dataset=RandomDataset(args.BATCH_SIZE * (args.WARM_UP + args.NUM_TEST)),
         batch_size=args.BATCH_SIZE,
@@ -263,7 +249,7 @@ if __name__ == "__main__":
     benchmark_model_dict = {}
     # if gpu is AMD's integrated graphic card, run only the minime set of benchmarks
     if device_name == "AMD Radeon Graphics":
-        precision_list_arr = PRECISION_LIST_MEDIUM
+        precision_list_arr = PRECISION_LIST_LARGE
         model_list_arr = MODEL_LIST_SMALL
     else:
         if (gpu_mem_free <= 6):
@@ -306,28 +292,11 @@ if __name__ == "__main__":
     else:
         folder_name = args.folder + "/" + str(gpu_count) + "X"
     print("Result directory: " + folder_name)
-
-    system_configs = f"{platform.uname()}\n\
-                    {psutil.cpu_freq()}\n\
-                    CPU Count: {psutil.cpu_count()}\n\
-                    System Memory: {psutil.virtual_memory().available}\n\
-                    Benchmark Precision List Name: {precision_list_name}\n\
-                    Benchmark Model List Name: {model_list_name}\n\
-                    Benchmark Precision List: {precision_list_arr}\n\
-                    Benchmark Model List: {model_list_arr}\n"
-    gpu_config_list = [
-        gpu_count,
-        torch.__version__,
-        torch.version.hip,
-        torch.version.cuda,
-        torch.backends.cudnn.version(),
-        device_name,
-        gpu_mem_total,
-        gpu_mem_used,
-        gpu_mem_free,
-        model_list_name,
-    ]
-    gpu_config_list = list(map(str, gpu_config_list))
+    system_info_list = f"\
+	            OS: {platform.uname()}\n\
+				CPU Freq: {psutil.cpu_freq()}\n\
+				CPU Count: {psutil.cpu_count()}\n\
+				System Memory: {psutil.virtual_memory().available}\n"
     gpu_config_header_list = [
         "GPU_Count: ",
         "Torch_Version : ",
@@ -338,8 +307,33 @@ if __name__ == "__main__":
         "GPU Mem Total (GB): ",
         "GPU Mem Used (GB): ",
         "GPU Mem Free (GB): ",
-        "Benchmark Model Size: ",
     ]
+    gpu_config_info_list = [
+        gpu_count,
+        torch.__version__,
+        torch.version.hip,
+        torch.version.cuda,
+        torch.backends.cudnn.version(),
+        device_name,
+        gpu_mem_total,
+        gpu_mem_used,
+        gpu_mem_free,
+    ]
+    gpu_config_info_list = list(map(str, gpu_config_info_list))
+
+    model_config_header_list = [
+        "Benchmark Model List Name: ",
+        "Benchmark Precision List Name: ",
+        "Benchmark Precision List: ",
+        "Batch Size: ",
+    ]
+    model_config_info_list = [
+        model_list_name,
+        precision_list_name,
+        precision_list_arr,
+        str(args.BATCH_SIZE),
+    ]
+    model_config_info_list = list(map(str, model_config_info_list))
 
     os.makedirs(folder_name, exist_ok=True)
     with open(os.path.join(folder_name, "config.json"), "w") as f:
@@ -347,23 +341,38 @@ if __name__ == "__main__":
 
     datetime_now = datetime.datetime.now()
     start_time_str = datetime_now.strftime("%Y/%m/%d %H:%M:%S")
-    print(f"Benchmark start time: {start_time_str}")
 
-    for idx, value in enumerate(zip(gpu_config_header_list, gpu_config_list)):
-        gpu_config_list[idx] = "".join(value)
-        print(gpu_config_list[idx])
-    print(system_configs)
+    print(system_info_list)
+
+    for idx, value in enumerate(zip(gpu_config_header_list, gpu_config_info_list)):
+        gpu_config_info_list[idx] = "".join(value)
+        print(gpu_config_info_list[idx])
+
+    for idx, value in enumerate(zip(model_config_header_list, model_config_info_list)):
+        model_config_info_list[idx] = "".join(value)
+        print(model_config_info_list[idx])
 
     with open(os.path.join(folder_name, "system_info.txt"), "w") as f:
-        f.writelines(f"1) Benchmark Start Time:\n{start_time_str}\n")
-        f.writelines("1) System Config\n\n")
-        f.writelines(system_configs)
-        f.writelines("2) GPU Config\n\n")
-        f.writelines(s + "\n" for s in gpu_config_list)
+        f.writelines(f"1) Benchmark start time:\n{start_time_str}\n")
+        f.writelines("1) System configuration:\n\n")
+        f.writelines(system_info_list)
+        f.writelines("2) GPU configuration:\n\n")
+        f.writelines(s + "\n" for s in gpu_config_info_list)
+        f.writelines("3) Model configuration:\n\n")
+        f.writelines(s + "\n" for s in model_config_info_list)
 
+    print("\nModels")
+    indx=0
+    for model_type in model_list_arr.keys():
+        #print("train model_type: " + model_type)
+        for model_name in model_list_arr[model_type]:
+            indx=indx+1
+            print("  model[" + str(indx) + "]: " + model_name)
+
+    print(f"\nBenchmark start time: {start_time_str}")
     for cur_precision in precision_list_arr:
         benchmark_model_data = benchmark_model_dict[cur_precision]
-        print("precision: " + cur_precision + ", set: " + benchmark_model_data.model_desc)
+        print("Precision: " + cur_precision + ", model list: " + benchmark_model_data.model_desc)
 
         train_result = train(cur_precision, gpu_index, benchmark_model_data.model_set)
         train_result_df = pd.DataFrame(train_result)
@@ -378,6 +387,6 @@ if __name__ == "__main__":
     # finish the benchmarks
     datetime_now = datetime.datetime.now()
     end_time_str = datetime_now.strftime("%Y/%m/%d %H:%M:%S")
-    print(f"benchmark end : {end_time_str}")
+    print(f"Benchmark end time: {end_time_str}")
     with open(os.path.join(folder_name, "system_info.txt"), "a") as f:
-        f.writelines(f"benchmark end : {end_time_str}\n")
+        f.writelines(f"Benchmark end time: {end_time_str}\n")
