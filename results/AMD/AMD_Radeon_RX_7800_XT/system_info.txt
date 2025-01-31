@@ -1,0 +1,26 @@
+1) Benchmark start time:
+2025/01/29 12:22:07
+1) System configuration:
+
+	            OS: uname_result(system='Linux', node='nobara-pc', release='6.12.11-204.nobara.fc41.x86_64', version='#1 SMP PREEMPT_DYNAMIC Sat Jan 25 13:33:45 MST 2025', machine='x86_64')
+				CPU Freq: scpufreq(current=3275.7346875, min=800.0, max=5000.0)
+				CPU Count: 16
+				System Memory: 20356624384
+2) GPU configuration:
+
+GPU_Count: 1
+Torch_Version : 2.4.1
+ROCM_Version: 6.1.40093-748005c95
+CUDA_Version: None
+Cudnn_Version: 3001000
+Device_Name: AMD_Radeon_RX_7800_XT
+GPU Mem Total (GB): 15.984375
+GPU Mem Used (GB): 0.193359375
+GPU Mem Free (GB): 15.791015625
+3) Model configuration:
+
+Benchmark Model List Name: LARGE
+Benchmark Precision List Name: LARGE
+Benchmark Precision List: ['half', 'float', 'double']
+Batch Size: 4
+Benchmark end time: 2025/01/29 12:49:26
